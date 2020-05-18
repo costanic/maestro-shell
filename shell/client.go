@@ -155,6 +155,14 @@ func (self *MaestroClient) GetAlive() (alive *AliveResponse, err error) {
 	return
 }
 
+func FormatJsonEasyRead2(out bytes.Buffer, rawjson []byte) (outs string, err error) {
+	prettyJSON, err := json.MarshalIndent(rawjson, "", "    ")
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s\n", string(prettyJSON)), nil
+}
+
 func FormatJsonEasyRead(out bytes.Buffer, rawjson []byte) (outs string, err error) {
 	var data interface{}
 
@@ -304,7 +312,7 @@ func (self *MaestroClient) GetLogging() (out string, err error) {
 		DebugOut("resp.Body body = %s", string(body))
 		if err2 == nil {
 			buf.WriteString("targets:")
-			out, err = FormatJsonEasyRead(buf, body)
+			out, err = FormatJsonEasyRead2(buf, body)
 		} else {
 			DebugOut("Error on ReadAll %s", err2.Error())
 			err = err2
@@ -483,7 +491,7 @@ func (self *MaestroClient) GetNetInterfaces() (out string, err error) {
 		DebugOut("resp.Body body = %s", string(body))
 		if err2 == nil {
 			buf.WriteString("interfaces:")
-			out, err = FormatJsonEasyRead(buf, body)
+			out, err = FormatJsonEasyRead2(buf, body)
 			//			out = string()
 			//			json.Unmarshal(body, alive)
 		} else {
@@ -522,7 +530,7 @@ func (client *MaestroClient) netEventListener() {
 				if err2 == nil {
 					var buf bytes.Buffer
 					buf.WriteString("JSON:")
-					out, err := FormatJsonEasyRead(buf, body)
+					out, err := FormatJsonEasyRead2(buf, body)
 					if err == nil {
 						EventOut("network", "%s", out)
 					} else {
